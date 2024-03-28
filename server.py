@@ -6,6 +6,8 @@ from gamedata import *
 import comm
 from game import *
 
+import redditwarp.SYNC 
+
 class Server():
     """
     Game server
@@ -45,6 +47,11 @@ class Server():
         self.port = 5555
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.next_id = 0
+
+    def fetch_reddit_post(self):
+        client = redditwarp.SYNC.Client()
+        post = next(client.p.subreddit.pull.top('Temple', amount=1, time='hour'))
+        return post.title
         
     def start(self):
         """
@@ -230,6 +237,7 @@ class Server():
             user_input = input()
             if user_input.lower() == 'exit':
                 self.on_exit()
+
 
 def main():
     server = Server()

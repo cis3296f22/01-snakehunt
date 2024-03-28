@@ -10,6 +10,9 @@ from tkinter import *
 from tkinter import ttk
 import sys
 
+from redditFetch import fetch_latest_temple_post, display_text
+
+
 from gamedata import *
 import comm
 
@@ -447,7 +450,13 @@ class Game():
         Return
         ------
         None
+        
         """
+
+        post_title, post_permalink = fetch_latest_temple_post()
+        full_text = f"{post_title}\n\n{post_permalink}"
+        print(full_text)
+
         while self.running:
             msg = None
             for event in pygame.event.get():
@@ -484,6 +493,13 @@ class Game():
 
             if game_data.sound is not None:
                 self.radio.play_sound(game_data.sound)
+
+            display_text(self.window, post_title, (10, 30))
+            display_text(self.window, post_permalink, (10, 45))
+
+
+            # Ensure the screen is updated to show the drawn text
+            pygame.display.update()
 
         pygame.quit()
         
