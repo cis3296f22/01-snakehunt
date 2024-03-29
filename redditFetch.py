@@ -8,7 +8,7 @@ def fetch_latest_temple_post():
 import pygame
 import textwrap
 
-def display_text(window, text, position, font_size=15, color=(255, 255, 255), max_width=200):
+def display_text(window, text, position, font_size=15, color=(255, 255, 255), max_width= 75):
     font = pygame.font.Font(None, font_size)
     words = text.split(' ')
     wrapped_text = textwrap.fill(text, width=max_width)
