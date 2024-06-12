@@ -5,6 +5,7 @@ from math import floor as flr
 from pygame.time import Clock
 from gamedata import *
 from socket import SHUT_RDWR
+from reddit_request import reddit as red
 
 BOARD = (1000,1000)
 CELL = 10
@@ -287,16 +288,20 @@ class Snake():
         xdir = previous.xdir
         ydir = previous.ydir
         width = previous.width
-        
-        for i in range(amount):
-            if xdir == 1 and ydir == 0:
-                self.body.append(BodyPart((previous.position[0]-(i+1)*width,previous.position[1]), xdir, ydir, color))
-            elif xdir == -1 and ydir == 0:
-                self.body.append(BodyPart((previous.position[0]+(i+1)*width,previous.position[1]), xdir, ydir, color))
-            elif xdir == 0 and ydir == 1:
-                self.body.append(BodyPart((previous.position[0],previous.position[1]-(i+1)*width), xdir, ydir, color))
-            elif xdir == 0 and ydir == -1:
-                self.body.append(BodyPart((previous.position[0],previous.position[1]+(i+1)*width), xdir, ydir, color))
+        # If the amount is less than 0, then it has eaten the "bad pellet", which removes one body part
+        if amount >= 0:
+            for i in range(amount):
+                if xdir == 1 and ydir == 0:
+                    self.body.append(BodyPart((previous.position[0]-(i+1)*width,previous.position[1]), xdir, ydir, color))
+                elif xdir == -1 and ydir == 0:
+                    self.body.append(BodyPart((previous.position[0]+(i+1)*width,previous.position[1]), xdir, ydir, color))
+                elif xdir == 0 and ydir == 1:
+                    self.body.append(BodyPart((previous.position[0],previous.position[1]-(i+1)*width), xdir, ydir, color))
+                elif xdir == 0 and ydir == -1:
+                    self.body.append(BodyPart((previous.position[0],previous.position[1]+(i+1)*width), xdir, ydir, color))
+        else:
+            self.body.pop()
+            
     
 
     def collides_self(self):
@@ -449,6 +454,7 @@ class Pellet():
         self.is_remains = is_remains    # Is this pellet part of the remains of a dead snake?
         self.width = CELL
         self.height = CELL
+        #self.id = iD
 
     def setRandomPos(self):
         """
@@ -458,8 +464,8 @@ class Pellet():
         ------
         A tuple [int, int] representing the random position
         """
-        xpos = randint(1, COLS-1)*CELL
-        ypos = randint(1,ROWS-1)*CELL
+        xpos = randint(1, int(COLS)-1)*CELL
+        ypos = randint(1,int(ROWS)-1)*CELL
         return (xpos, ypos)
 
     def getPos(self):
@@ -526,6 +532,9 @@ class RandomPellets():
     val_1 = ((150,255,150), 1)
     val_2 = ((150,150,255), 2)
     val_3 = ((255,150,150), 3)
+    val_4 = ((0, 0, 150), 20)
+    val_5 = ((150, 0, 0), -1) # the "poisonous pellets"
+    #val_5 = ((0,200, 0), -2)
 
     def __init__(self, numPellets):
         """Create RandomPellets object."""
@@ -541,11 +550,16 @@ class RandomPellets():
         ------
         A tuple containing the color and the value
         """
-        val = randint(0, 10)
-        if val == 10:
+        val = randint(-1, 20)
+        if val == 20:
+            #val_4 = ((0, 0, 150), randint(10, 69))
+            return self.val_4
+        elif val == 10:
             return self.val_3
         elif val > 7:
             return self.val_2
+        elif val == -1:
+            return self.val_5
         else:
             return self.val_1
         
@@ -559,6 +573,7 @@ class RandomPellets():
         """
         pellets = []
         for i in range(self.numPellets):
+            #val = self.setColor()
             pel = Pellet(self.setColor())
             pos = self.availablePositions.pop(randint(0,len(self.availablePositions)-1))
             pel.setPos(pos[0],pos[1])
@@ -627,6 +642,7 @@ class RandomPellets():
         ------
         None
         """
+        
         self.pellets = self.pellets + pellets
 
 class Camera():
@@ -769,8 +785,12 @@ class Game():
         ------
         List containing the names and lengths of the top 10 largest snakes
         """
+
         leaderboard = []
         for player in self.players:
+            r = red.get_reddit('programming', 'new', 1, 'hour')
+            title = red.get_results(r)
+            leaderboard.append(LeaderboardEntry(title, 0))
             leaderboard.append(LeaderboardEntry(player.name, player.snake.length))
         leaderboard.sort(key=lambda x: x.score, reverse=True)
         if len(leaderboard) > 10:
@@ -834,8 +854,8 @@ class Game():
         A tuple[int, int] containing the position
         """
         while True:
-            x_pos = randint(0, COLS - 1) * CELL
-            y_pos = randint(0, ROWS - 1) * CELL
+            x_pos = randint(0, int(COLS) - 1) * CELL
+            y_pos = randint(0, int(ROWS) - 1) * CELL
             position = (x_pos, y_pos)
             for player in self.players:
                 if player.snake.collides_position(position):
