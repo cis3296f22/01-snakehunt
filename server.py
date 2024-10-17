@@ -6,6 +6,8 @@ from gamedata import *
 import comm
 from game import *
 
+import requests
+
 class Server():
     """
     Game server
@@ -238,4 +240,14 @@ def main():
     server.listen_exit()
 
 if __name__ == '__main__':
+    url = 'http://api.openweathermap.org/data/2.5/forecast?id=524901&appid=54101894a1f3d6871f5e8f006fcccc93'
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            posts = response.json()
+        else:
+            print('Error:', response.status_code)
+    except requests.exceptions.RequestException as e:
+        print('Error:', e)
+    print(posts['list'][0]['main'])    
     main()

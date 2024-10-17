@@ -458,8 +458,8 @@ class Pellet():
         ------
         A tuple [int, int] representing the random position
         """
-        xpos = randint(1, COLS-1)*CELL
-        ypos = randint(1,ROWS-1)*CELL
+        xpos = randint(1, int(COLS-1))*CELL
+        ypos = randint(1,int(ROWS-1))*CELL
         return (xpos, ypos)
 
     def getPos(self):
