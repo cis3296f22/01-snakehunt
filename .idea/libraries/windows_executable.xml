@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="windows_executable">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/windows_executable.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
