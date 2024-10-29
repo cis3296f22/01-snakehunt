@@ -533,6 +533,9 @@ class RandomPellets():
         self.availablePositions = self.setPositions()
         self.pellets = self.genPellets()
 
+    def setSpeed(self, value):
+        SPEED = value
+
     def setColor(self):
         """
         Give the pellet a random color and value.
@@ -543,12 +546,15 @@ class RandomPellets():
         """
         val = randint(0, 10)
         if val == 10:
+            self.setSpeed(self.val_3)
             return self.val_3
         elif val > 7:
+            self.setSpeed(self.val_2)
             return self.val_2
         else:
+            self.setSpeed(self.val_1)
             return self.val_1
-        
+    
     def genPellets(self):
         """
         Generate pellets at random positions.
