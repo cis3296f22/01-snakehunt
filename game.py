@@ -490,7 +490,6 @@ class Pellet():
         """
         self.position = [xpos,ypos]
 
-
 class RandomPellets():
     """
     A class that creates multiple pellets at random non-overlapping positions.
@@ -527,7 +526,7 @@ class RandomPellets():
     val_1 = ((150,255,150), 1)
     val_2 = ((150,150,255), 2)
     val_3 = ((255,150,150), 3)
-    val_4 = ((128,0,128),10) #new pellet
+
     def __init__(self, numPellets):
         """Create RandomPellets object."""
         self.numPellets = numPellets
@@ -544,14 +543,12 @@ class RandomPellets():
         """
         val = randint(0, 10)
         if val == 10:
-            return self.val_4
-        elif val > 7:
             return self.val_3
-        elif val > 4:
+        elif val > 7:
             return self.val_2
         else:
             return self.val_1
-
+        
     def genPellets(self):
         """
         Generate pellets at random positions.
@@ -567,7 +564,7 @@ class RandomPellets():
             pel.setPos(pos[0],pos[1])
             pellets.append(pel)
         return(pellets)
-
+    
     def setPositions(self):
         """
         Initialize all possible pellet positions
@@ -581,7 +578,7 @@ class RandomPellets():
             for j in range(flr(COLS)):
                 positions.append([i*CELL, j*CELL])
         return(positions)
-
+    
     def getPositions(self):
         """
         Get a list of the positions of all pellets.
@@ -594,7 +591,7 @@ class RandomPellets():
         for pellet in self.pellets:
             positions.append(pellet.position)
         return(positions)
-
+    
     def resetPellet(self,pel):
         """
         Remove a pellet then generate a new one at a random position.
@@ -875,16 +872,11 @@ class Game():
                     sound = comm.Message.PELLET_EATEN
                     i = pos.index([snake.head.position[0],snake.head.position[1]])
                     pellet = self.random_pellets.pellets[i]
-
                     if pellet.is_remains:
                         self.random_pellets.pellets.pop(i)
                     else:
                         self.random_pellets.resetPellet(pellet)
                     snake.grow(pellet.val, pellet.color)
-                    if pellet.val == 10:  # If it's a purple pellet
-                        snake.grow(pellet.val, pellet.color)  # Grow by 10 blocks
-                    else:
-                        snake.grow(pellet.val, pellet.color)  # Regular growth
                 if snake.collides_self():
                     sound = comm.Message.SELF_COLLISION
                     dead_snakes.append(snake)
