@@ -272,9 +272,9 @@ class RandomPellets():
                 pel = Pellet(self.world)
             else:
                 pel = PurplePellet(self.world)
-        # Get a random available position then remove it from the list of available positions
+            # Get a random available position then remove it from the list of available positions
             pos = self.availablePositions.pop(randint(0, len(self.availablePositions) - 1))
-        # Manually set the position of the pellet to the random position
+            # Manually set the position of the pellet to the random position
             pel.setDetPos(pos[0], pos[1])
             pellets.append(pel)
         return(pellets)
@@ -382,13 +382,13 @@ class Game():
             pos = self.pellets.getPositions()
             snake = self.players[0].snake
             if([snake.head.position[0], snake.head.position[1]] in pos):
-               pellet = self.pellets.pellets[pos.index([snake.head.position[0],snake.head.position[1]])]
-               if isinstance(pellet, PurplePellet):  # Check the type of the pellet
-                self.pellets.resetPellet(pellet)
-                snake.grow(10)
-               else:
-                self.pellets.resetPellet(pellet)
-                snake.grow(1) 
+                pellet = self.pellets.pellets[pos.index([snake.head.position[0],snake.head.position[1]])]
+                if isinstance(pellet, PurplePellet):  # Check the type of the pellet
+                    self.pellets.resetPellet(pellet)
+                    snake.grow(10)
+                else:
+                    self.pellets.resetPellet(pellet)
+                    snake.grow(1)
 
 
             snake.check_body_collision()
