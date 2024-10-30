@@ -533,22 +533,28 @@ class RandomPellets():
         self.availablePositions = self.setPositions()
         self.pellets = self.genPellets()
 
+    def setSpeed(self, value):
+        SPEED = value
+
     def setColor(self):
         """
         Give the pellet a random color and value.
-    
+
         Return
         ------
         A tuple containing the color and the value
         """
         val = randint(0, 10)
         if val == 10:
+            self.setSpeed(self.val_3)
             return self.val_3
         elif val > 7:
+            self.setSpeed(self.val_2)
             return self.val_2
         else:
+            self.setSpeed(self.val_1)
             return self.val_1
-        
+
     def genPellets(self):
         """
         Generate pellets at random positions.
@@ -564,6 +570,20 @@ class RandomPellets():
             pel.setPos(pos[0],pos[1])
             pellets.append(pel)
         return(pellets)
+
+    def setPositions(self):
+        """
+        Initialize all possible pellet positions
+
+        Return
+        ------
+        List of all possible positions
+        """
+        positions = []
+        for i in range(flr(ROWS)):
+            for j in range(flr(COLS)):
+                positions.append([i*CELL, j*CELL])
+        return(positions)
     
     def setPositions(self):
         """
