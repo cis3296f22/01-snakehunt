@@ -10,8 +10,8 @@ BEYOND_BOARD = (2000, 2000)
 BOARD = (1000,1000)
 CELL = 10
 SPEED = CELL
-COLS = BOARD[0]/CELL
-ROWS = BOARD[1]/CELL
+COLS = int(BOARD[0]/CELL)
+ROWS = int(BOARD[1]/CELL)
 
 class Player():
     def __init__(self, name, snake):
@@ -100,7 +100,7 @@ class Snake():
         self.length = 1
         self.dirnx = 0
         self.dirny = 1
-        
+
     # Change direction of head of snake based on input
     def change_direction(self):
         keys = pygame.key.get_pressed()
@@ -120,7 +120,7 @@ class Snake():
             self.head.xdir = 0
             self.head.ydir = 1
             self.turns[self.head.position[:]] = [self.head.xdir, self.head.ydir]
-    
+
     # Move every part of the snake.
     # If a part is at a position where a previous turn occurred, set its direction to the
     # direction of the previous turn.
@@ -134,12 +134,12 @@ class Snake():
                 if i == len(self.body) - 1:
                     self.turns.pop(pos)
             part.move()
-            
+
             if part.position[0] < BEYOND_BOARD[0]/4:
                 part.position = (part.position[0]+self.field_dimensions[0], part.position[1])
             elif part.position[0] > 3*BEYOND_BOARD[0]/4 - 1:
                 part.position = (part.position[0]-self.field_dimensions[0], part.position[1])
-                
+
             elif part.position[1] > 3*BEYOND_BOARD[1]/4 - 1:
                 part.position = (part.position[0], part.position[1]-self.field_dimensions[1])
             elif part.position[1] < BEYOND_BOARD[1]/4:
@@ -166,12 +166,12 @@ class Snake():
         size = self.length
         self.length = size + amount
         previous = self.body[size-1]
-        
+
         # initialize elements from the previous part for readability
         xdir = previous.xdir
         ydir = previous.ydir
         width = previous.width
-        
+
         for i in range(amount):
             # if the previous part is moving right, append
             # this part to the left of it with the same direction
@@ -189,7 +189,7 @@ class Snake():
             # this part to the top of it with the same direction
             elif xdir == 0 and ydir == -1:
                 self.body.append(BodyPart((previous.position[0],previous.position[1]+(i+1)*width), xdir, ydir, self.color))
-    
+
     def check_body_collision(self):
         #Snake dies and game is over for user when snake collides with itself
         for part in range(len(self.body)):
@@ -226,10 +226,18 @@ class Pellet():
 
     def destroy(self):
         self.position = self.setPos()
-        
+
     # set a pellet's position to a value passed in
     def setDetPos(self,xpos,ypos):
         self.position = [xpos,ypos]
+class PurplePellet(Pellet):
+    def __init__(self, world):
+        self.color = (255, 0, 255)
+        super().__init__(world)
+    def render(self, surface):
+        if self.position is not None:
+            xpos, ypos = self.getPos()
+            pygame.draw.rect(surface,(255, 0, 255), (xpos, ypos, self.height-2, self.width-2))
 
 class Camera():
     def __init__(self, player, dimensions):
@@ -247,7 +255,7 @@ class Camera():
 # IMPORTANT NOTE
 # For a 32 bit system, the maximum array size in python is 536,870,912
 # elements. Since this implementation is dependent on the board and cell size,
-# this will not work for anything larger than a 23170 by 23170 size board/cell 
+# this will not work for anything larger than a 23170 by 23170 size board/cell
 # ratio for 32 bit systems.
 class RandomPellets():
     def __init__(self, numPellets, world):
@@ -255,19 +263,22 @@ class RandomPellets():
         self.numPellets = numPellets
         self.availablePositions = self.setPositions(self.world)
         self.pellets = self.genPellets()
-        
+
     def genPellets(self):
         pellets = []
         for i in range(self.numPellets):
             pel = Pellet(self.world)
-            # get a random available position then remove it from the list of 
-            # available positions (-1 added to avoid error by popping out of range)
-            pos = self.availablePositions.pop(randint(0,len(self.availablePositions)-1))
-            # manually set the position of the pellet to the random position
-            pel.setDetPos(pos[0],pos[1])
+            if randint(0, 1) == 0:
+                pel = Pellet(self.world)
+            else:
+                pel = PurplePellet(self.world)
+            # Get a random available position then remove it from the list of available positions
+            pos = self.availablePositions.pop(randint(0, len(self.availablePositions) - 1))
+            # Manually set the position of the pellet to the random position
+            pel.setDetPos(pos[0], pos[1])
             pellets.append(pel)
         return(pellets)
-    
+
     # initializes all possible pellet positions, i.e. every cell
     def setPositions(self, world):
         positions = []
@@ -275,13 +286,13 @@ class RandomPellets():
             for j in range(flr(COLS)):
                 positions.append([world.get_width()/4 + i*CELL,world.get_width()/4 + j*CELL])
         return(positions)
-    
+
     def getPositions(self):
         positions = []
         for pellet in self.pellets:
             positions.append(pellet.position)
         return(positions)
-    
+
     def resetPellet(self,pel):
         # delete the pellet
         self.pellets.remove(pel)
@@ -293,11 +304,11 @@ class RandomPellets():
         # add the deleted pellet's position back to the available positions
         self.availablePositions.append(pel.position)
         self.pellets.append(pel2)
-        
+
     def addPellet(self,pel):
         self.pellets.append(pel)
         self.numPellets = self.numPellets+1
-        
+
     def render(self,surface):
         for pellet in self.pellets:
             pellet.render(surface)
@@ -336,9 +347,9 @@ class Game():
         self.pellets.render(self.world)
         self.camera.render(self.win, self.world)
         self.show_leaderboard()
-    
+
         pygame.display.flip()
-    
+
     def show_leaderboard(self):
         def takeSnakeSize(element):
             return element.snake.length
@@ -372,9 +383,13 @@ class Game():
             snake = self.players[0].snake
             if([snake.head.position[0], snake.head.position[1]] in pos):
                 pellet = self.pellets.pellets[pos.index([snake.head.position[0],snake.head.position[1]])]
-                # delete this pellet and generate a new random pellet
-                self.pellets.resetPellet(pellet)
-                snake.grow(1)
+                if isinstance(pellet, PurplePellet):  # Check the type of the pellet
+                    self.pellets.resetPellet(pellet)
+                    snake.grow(10)
+                else:
+                    self.pellets.resetPellet(pellet)
+                    snake.grow(1)
+
 
             snake.check_body_collision()
             snake.change_direction()
@@ -382,7 +397,7 @@ class Game():
 
             self.render()
             self.clock.tick(15)
-            
+
         pygame.quit()
 
 def main():
